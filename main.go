@@ -83,7 +83,6 @@ func testPort(host string, port int, output chan *url.URL, wg *sync.WaitGroup) {
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", host, port), time.Second*5)
 	if err == nil {
 		if err2 := conn.Close(); err2 != nil {
-
 		}
 		for _, generatedUrl := range generateUrls(host, port) {
 			output <- generatedUrl
