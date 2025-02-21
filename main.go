@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/bogey3/NTLM_Info"
-	"io/ioutil"
 	"net"
 	"net/url"
 	"os"
@@ -75,8 +74,8 @@ func testPort(host string, port int, output chan *url.URL, wg *sync.WaitGroup) {
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", host, port), time.Second*5)
 	if err == nil {
 		conn.Close()
-		for _, url := range generateUrl(host, port) {
-			output <- url
+		for _, generatedUrl := range generateUrl(host, port) {
+			output <- generatedUrl
 		}
 	}
 }
@@ -85,7 +84,7 @@ var ports []int
 
 func main() {
 	ports = []int{25, 80, 443, 3389}
-	data, err := ioutil.ReadFile(os.Args[1])
+	data, err := os.ReadFile(os.Args[1])
 	if err != nil {
 		panic(err)
 	}
