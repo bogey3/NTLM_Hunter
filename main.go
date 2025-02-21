@@ -13,43 +13,42 @@ import (
 
 var ntlmPaths = []string{"/", "/owa/", "/ews/", "/autodiscover/", "/mapi/", "/oab/", "/activesync/", "/rpc/", "/rpc/rpcproxy.dll", "/PowerShell/", "/ecp/", "/CertProv/", "/WebTicket/", "/ucwa/", "/MCX/", "/_vti_bin/", "/_layouts/", "/sites/", "/mysite/", "/search/", "/adfs/ls/", "/adfs/services/trust/", "/adfs/services/", "/Reports/", "/ReportServer/", "/teams/auth/", "/ms-als/", "/ntlm/", "/auth/", "/login/", "/api/", "/sap/bc/"}
 
-func generateUrl(host string, port int) []*url.URL {
+func buildUrl(scheme string, host string, port int) []*url.URL {
+	urls := []*url.URL{}
+	if strings.HasPrefix(scheme, "http") {
+		for _, path := range ntlmPaths {
+			parsedUrl, err := url.Parse(fmt.Sprintf("%s://%s:%d%s", scheme, host, port, path))
+			if err == nil {
+				urls = append(urls, parsedUrl)
+			}
+		}
+	} else {
+		parsedUrl, err := url.Parse(fmt.Sprintf("%s://%s:%d", scheme, host, port))
+		if err == nil {
+			urls = append(urls, parsedUrl)
+		}
+
+	}
+	return urls
+}
+
+func generateUrls(host string, port int) []*url.URL {
 	var targetUrl []*url.URL
-	var parsedUrl *url.URL
-	var err error
 	switch port {
 	case 25:
-		parsedUrl, err = url.Parse(fmt.Sprintf("smtp://%s", host))
-		targetUrl = append(targetUrl, parsedUrl)
+		targetUrl = append(targetUrl, buildUrl("smtp", host, port)...)
 	case 80:
-		for _, path := range ntlmPaths {
-			parsedUrl, err = url.Parse(fmt.Sprintf("http://%s%s", host, path))
-			targetUrl = append(targetUrl, parsedUrl)
-		}
+		targetUrl = append(targetUrl, buildUrl("http", host, port)...)
 	case 443:
-		for _, path := range ntlmPaths {
-			parsedUrl, err = url.Parse(fmt.Sprintf("https://%s%s", host, path))
-			targetUrl = append(targetUrl, parsedUrl)
-		}
+		targetUrl = append(targetUrl, buildUrl("https", host, port)...)
 	case 8080:
-		for _, path := range ntlmPaths {
-			parsedUrl, err = url.Parse(fmt.Sprintf("http://%s%s", host, path))
-			targetUrl = append(targetUrl, parsedUrl)
-		}
+		targetUrl = append(targetUrl, buildUrl("http", host, port)...)
 	case 8443:
-		for _, path := range ntlmPaths {
-			parsedUrl, err = url.Parse(fmt.Sprintf("https://%s%s", host, path))
-			targetUrl = append(targetUrl, parsedUrl)
-		}
+		targetUrl = append(targetUrl, buildUrl("https", host, port)...)
 	case 3389:
-		parsedUrl, err = url.Parse(fmt.Sprintf("rdp://%s", host))
-		targetUrl = append(targetUrl, parsedUrl)
+		targetUrl = append(targetUrl, buildUrl("rdp", host, port)...)
 	}
-	if err == nil {
-		return targetUrl
-	} else {
-		return nil
-	}
+	return targetUrl
 }
 
 func doNTLMLookups(input chan *url.URL, wg *sync.WaitGroup) {
@@ -83,8 +82,10 @@ func testPort(host string, port int, output chan *url.URL, wg *sync.WaitGroup) {
 	defer wg.Done()
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", host, port), time.Second*5)
 	if err == nil {
-		conn.Close()
-		for _, generatedUrl := range generateUrl(host, port) {
+		if err2 := conn.Close(); err2 != nil {
+
+		}
+		for _, generatedUrl := range generateUrls(host, port) {
 			output <- generatedUrl
 		}
 	}
