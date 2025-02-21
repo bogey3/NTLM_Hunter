@@ -31,6 +31,16 @@ func generateUrl(host string, port int) []*url.URL {
 			parsedUrl, err = url.Parse(fmt.Sprintf("https://%s%s", host, path))
 			targetUrl = append(targetUrl, parsedUrl)
 		}
+	case 8080:
+		for _, path := range ntlmPaths {
+			parsedUrl, err = url.Parse(fmt.Sprintf("http://%s%s", host, path))
+			targetUrl = append(targetUrl, parsedUrl)
+		}
+	case 8443:
+		for _, path := range ntlmPaths {
+			parsedUrl, err = url.Parse(fmt.Sprintf("https://%s%s", host, path))
+			targetUrl = append(targetUrl, parsedUrl)
+		}
 	case 3389:
 		parsedUrl, err = url.Parse(fmt.Sprintf("rdp://%s", host))
 		targetUrl = append(targetUrl, parsedUrl)
@@ -83,7 +93,7 @@ func testPort(host string, port int, output chan *url.URL, wg *sync.WaitGroup) {
 var ports []int
 
 func main() {
-	ports = []int{25, 80, 443, 3389}
+	ports = []int{25, 80, 443, 8080, 8443, 3389}
 	data, err := os.ReadFile(os.Args[1])
 	if err != nil {
 		panic(err)
