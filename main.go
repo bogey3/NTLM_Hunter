@@ -12,7 +12,7 @@ import (
 )
 
 var ntlmPaths = []string{"/", "/owa/", "/ews/", "/autodiscover/", "/mapi/", "/oab/", "/activesync/", "/rpc/", "/rpc/rpcproxy.dll", "/PowerShell/", "/ecp/", "/CertProv/", "/WebTicket/", "/ucwa/", "/MCX/", "/_vti_bin/", "/_layouts/", "/sites/", "/mysite/", "/search/", "/adfs/ls/", "/adfs/services/trust/", "/adfs/services/", "/Reports/", "/ReportServer/", "/teams/auth/", "/ms-als/", "/ntlm/", "/auth/", "/login/", "/api/", "/sap/bc/"}
-var portToScheme = map[int]string{25: "smtp", 80: "http", 443: "https", 8080: "http", 8443: "https", 3389: "rdp"}
+var portToScheme = map[int]string{25: "smtp", 80: "http", 443: "https", 445: "smb", 8080: "http", 8443: "https", 3389: "rdp"}
 
 func buildUrl(scheme string, host string, port int) []*url.URL {
 	urls := []*url.URL{}
@@ -34,20 +34,30 @@ func buildUrl(scheme string, host string, port int) []*url.URL {
 }
 
 func doNTLMLookups(input chan *url.URL, wg *sync.WaitGroup) {
-	defer wg.Done()
+
+	writerChan := make(chan NTLM_Info.TargetStruct, len(input))
+	go processWriterChan(writerChan)
 	for host := range input {
 		target := NTLM_Info.TargetStruct{}
 		target.TargetURL = host
 		wg.Add(1)
-		go doNTLMLookup(target, wg)
+		go doNTLMLookup(target, wg, writerChan)
+	}
+	wg.Done()
+	close(writerChan)
+}
+
+func processWriterChan(writerChan chan NTLM_Info.TargetStruct) {
+	for target := range writerChan {
+		target.Print()
+		fmt.Println()
 	}
 }
 
-func doNTLMLookup(target NTLM_Info.TargetStruct, wg *sync.WaitGroup) {
+func doNTLMLookup(target NTLM_Info.TargetStruct, wg *sync.WaitGroup, writerChan chan NTLM_Info.TargetStruct) {
 	defer wg.Done()
 	if err := target.GetChallenge(); err == nil {
-		target.Print()
-		fmt.Println()
+		writerChan <- target
 	}
 }
 
