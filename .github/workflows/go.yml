@@ -38,9 +38,6 @@ jobs:
         RESPONSE=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -d '{"tag_name": "'"$VERSION"'", "name": "'"$VERSION"'", "body": "Release for version '"$VERSION"'"}' \
           "https://api.github.com/repos/$REPO/releases")
-        echo "Release response: $RESPONSE"
-        echo "Version: $VERSION"
-        echo "Release ID: $(echo $RESPONSE | jq -r .id)"
         echo "::set-output name=release_id::$(echo $RESPONSE | jq -r .id)"
 
     # Upload the compiled binary to the release
@@ -48,7 +45,6 @@ jobs:
       run: |
         VERSION="${GITHUB_REF_NAME}"
         RELEASE_ID="${{ steps.create_release.outputs.release_id }}"
-        echo "URL: https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter"
         curl -i -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @ntlmHunter \
@@ -59,7 +55,6 @@ jobs:
       run: |
         VERSION="${GITHUB_REF_NAME}"
         RELEASE_ID="${{ steps.create_release.outputs.release_id }}"
-        echo "URL: https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter.exe"
         curl -i -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @ntlmHunter.exe \
