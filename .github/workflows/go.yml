@@ -33,17 +33,18 @@ jobs:
     - name: Create GitHub Release
       id: create_release
       run: |
-        REPO="bogey3/NTLM_Hunter"  # Replace with your repo name
-        VERSION="${GITHUB_REF#refs/tags/}"
+        REPO="bogey3/NTLM_Hunter"
+        VERSION="${GITHUB_REF_NAME}"
         RESPONSE=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -d '{"tag_name": "'"$VERSION"'", "name": "'"$VERSION"'", "body": "Release for version '"$VERSION"'"}' \
           "https://api.github.com/repos/$REPO/releases")
         echo "Release response: $RESPONSE"
+        echo "Version: $VERSION"
 
     # Upload the compiled binary to the release
     - name: Upload Release Asset
       run: |
-        VERSION="${GITHUB_REF#refs/tags/}"
+        VERSION="${GITHUB_REF_NAME}"
         RELEASE_ID=$(echo $RESPONSE | jq -r .id)
         curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
@@ -53,7 +54,7 @@ jobs:
     # Upload Windows binary to the release
     - name: Upload Windows binary
       run: |
-        VERSION="${GITHUB_REF#refs/tags/}"
+        VERSION="${GITHUB_REF_NAME}"
         RELEASE_ID=$(echo $RESPONSE | jq -r .id)
         curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
