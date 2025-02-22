@@ -5,9 +5,8 @@ name: Go
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - 'v*'  # Trigger on any new version tag (e.g., v1.0.0, v2.1.0, etc.)
 
 jobs:
 
