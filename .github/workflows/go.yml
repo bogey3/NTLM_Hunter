@@ -19,10 +19,44 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.22'
+        go-version: '1.24'
 
-    - name: Build
-      run: go build -ldflags "-w -s" -v ./...
+    - name: Build Linux
+      run: GOOS=linux GOARCH=amd64 go build -o ntlmHunter -ldflags "-w -s" -v ./...
+
+    - name: Build Windows
+      run: GOOS=windows GOARCH=amd64 go build -o ntlmHunter.exe -ldflags "-w -s" -v ./...
 
     - name: Test
       run: go test -v ./...
+
+      # Create a new release and upload the binary
+    - name: Create GitHub Release
+      id: create_release
+      run: |
+        REPO="bogey3/NTLM_Hunter"  # Replace with your repo name
+        VERSION="${GITHUB_REF#refs/tags/}"
+        RESPONSE=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -d '{"tag_name": "'"$VERSION"'", "name": "'"$VERSION"'", "body": "Release for version '"$VERSION"'"}' \
+          "https://api.github.com/repos/$REPO/releases")
+        echo "Release response: $RESPONSE"
+
+    # Upload the compiled binary to the release
+    - name: Upload Release Asset
+      run: |
+        VERSION="${GITHUB_REF#refs/tags/}"
+        RELEASE_ID=$(echo $RESPONSE | jq -r .id)
+        curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @ntlmHunter \
+          "https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=myprogram-linux-amd64"
+
+    # Upload Windows binary to the release
+    - name: Upload Windows binary
+      run: |
+        VERSION="${GITHUB_REF#refs/tags/}"
+        RELEASE_ID=$(echo $RESPONSE | jq -r .id)
+        curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @ntlmHunter.exe \
+          "https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter.exe"
