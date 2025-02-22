@@ -21,10 +21,10 @@ jobs:
         go-version: '1.24'
 
     - name: Build Linux
-      run: GOOS=linux GOARCH=amd64 go build -o ntlmHunter -ldflags "-w -s" -v ./...
+      run: GOOS=linux GOARCH=amd64 go build -o ntlmHunter-linux -ldflags "-w -s" -v ./...
 
     - name: Build Windows
-      run: GOOS=windows GOARCH=amd64 go build -o ntlmHunter.exe -ldflags "-w -s" -v ./...
+      run: GOOS=windows GOARCH=amd64 go build -o ntlmHunter-windows.exe -ldflags "-w -s" -v ./...
 
     - name: Test
       run: go test -v ./...
@@ -47,8 +47,8 @@ jobs:
         RELEASE_ID="${{ steps.create_release.outputs.release_id }}"
         curl -i -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
-          --data-binary @ntlmHunter \
-          "https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter"
+          --data-binary @ntlmHunter-linux \
+          "https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter-linux"
 
     # Upload Windows binary to the release
     - name: Upload Windows binary
@@ -57,5 +57,5 @@ jobs:
         RELEASE_ID="${{ steps.create_release.outputs.release_id }}"
         curl -i -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
-          --data-binary @ntlmHunter.exe \
-          "https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter.exe"
+          --data-binary @ntlmHunter-windows.exe \
+          "https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter-windows.exe"
