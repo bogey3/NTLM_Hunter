@@ -6,8 +6,8 @@ NTLM Hunter is a tool designed to scan a list of hosts for NTLM authentication e
 
 ## Features
 
-- **Port Scanning**: Tests predefined ports (e.g., 25, 80, 443, 8080, 8443, 3389) for availability.
-- **Endpoint Discovery**: Scans multiple NTLM-related paths on supported services such as HTTP, HTTPS, SMTP, and RDP.
+- **Port Scanning**: Tests predefined ports (e.g., 25, 80, 443, 445, 8080, 8443, 3389) for availability.
+- **Endpoint Discovery**: Scans multiple NTLM-related paths on supported services such as HTTP, HTTPS, SMB, SMTP, and RDP.
 - **NTLM Challenge Extraction**: Attempts to retrieve NTLM challenges from endpoints and displays the response.
 - **Concurrent Execution**: Uses Goroutines and WaitGroups for parallel scanning and lookups to optimize performance.
 
@@ -72,6 +72,7 @@ The program includes predefined ports and NTLM paths:
    - `25` (SMTP)
    - `80` (HTTP)
    - `443` (HTTPS)
+   - `445` (SMB)
    - `8080` (Alternative HTTP)
    - `8443` (Alternative HTTPS)
    - `3389` (RDP)
