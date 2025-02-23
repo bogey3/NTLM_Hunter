@@ -58,7 +58,7 @@ NTLM Hunter is a tool designed to scan a list of hosts for NTLM authentication e
 
 1. **Input**: The program reads a list of hostnames or IP addresses from a file provided as a command-line argument.
 2. **Port Testing**: It scans a set of predefined ports to check if they are open.
-3. **Generate URLs**: For each open port, the program generates URLs using common NTLM-related paths.
+3. **Generate URLs**: For each open port, the program either uses RDP/SMB/SMTP or generates URLs using common NTLM-related paths.
 4. **NTLM Challenge Lookup**: For each generated URL, the program attempts to retrieve an NTLM challenge using the `NTLM_Info` library.
 5. **Output**: The program prints information about endpoints that responded successfully with NTLM challenges, along with challenge details.
 
