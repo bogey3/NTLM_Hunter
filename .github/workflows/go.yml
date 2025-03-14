@@ -48,7 +48,7 @@ jobs:
         curl -i -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @ntlmHunter-linux \
-          "https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter-linux"
+          "https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter&label=Linux"
 
     # Upload Windows binary to the release
     - name: Upload Windows binary
@@ -58,4 +58,4 @@ jobs:
         curl -i -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @ntlmHunter-windows.exe \
-          "https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter-windows.exe"
+          "https://uploads.github.com/repos/bogey3/NTLM_Hunter/releases/$RELEASE_ID/assets?name=ntlmHunter&label=Windows"
